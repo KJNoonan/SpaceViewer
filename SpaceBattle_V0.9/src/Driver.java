@@ -1,5 +1,5 @@
 import Units.CargoShip;
-import Units.SpaceController;
+import classes.SpaceController;
 import display.ViewManager;
 import java.util.ArrayList;
 import javax.swing.JDialog;
