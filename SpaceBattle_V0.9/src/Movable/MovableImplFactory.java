@@ -16,7 +16,7 @@ import utils.Point3D;
  * @author Kevin
  */
 public class MovableImplFactory {
-   public static Movable createMovable(Point3D dest, double angle, double spd)throws InvalidParamException, NullParamException{
-       return new MovableImpl(dest,angle,spd);
+   public static Movable createMovable(Point3D dest, double spd)throws InvalidParamException, NullParamException{
+       return new MovableImpl(dest,spd);
    }
 }

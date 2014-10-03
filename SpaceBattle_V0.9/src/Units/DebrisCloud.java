@@ -38,8 +38,11 @@ public class DebrisCloud implements Runnable{
         makeShape();
         shape.scale(size_factor);
         ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColour(), Math.toRadians(Math.random()*360.0), shape, getInfoText(), false, false));
+        
         if(radarVisable) SpaceController.addCloud(this);
-        new Thread(this).start();
+       
+        Thread t1 = new Thread(this);
+        t1.start();
     }
     
     public String getInfoText(){
@@ -134,10 +137,16 @@ public class DebrisCloud implements Runnable{
             }            
         }
         else{
-            ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColour(), Math.toRadians(Math.random()*360.0), shape, getInfoText(), false, false));
-            //sleep for 50 ms
-            duration -= 50;
-            run();
+            
+            try {
+                ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColour(), Math.toRadians(Math.random()*360.0), shape, getInfoText(), false, false));
+                Thread.sleep(50);
+                duration -= 50;
+                run();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();;
+            }
+            
         }
     }
     

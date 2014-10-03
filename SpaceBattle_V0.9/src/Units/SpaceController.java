@@ -5,8 +5,9 @@
  */
 package Units;
 
+import Exceptions.InvalidParamException;
 import Exceptions.NullParamException;
-import Ships.Ship;
+import Ship.Ship;
 import java.util.HashMap;
 import java.util.Iterator;
 import utils.Point3D;
@@ -16,12 +17,37 @@ import utils.Point3D;
  * @author knoonan8
  */
 public class SpaceController {
-    public static final int xSize = 800;
-    public static final int ySize = 900;
-    public static final int zSize = 700;
-    
+    public static int xSize;//800
+    public static int ySize;//900
+    public static int zSize;//700
+    private volatile static SpaceController instance;
+    private static boolean setup = false;
     private static HashMap<String,Ship> allShips;
     private static HashMap<String,DebrisCloud> allClouds;
+    
+    public static SpaceController getInstance(){
+        if (!setup){
+            System.err.println("SpaceController 'setup' must be called before invoking the SpaceController");
+        }
+        if(instance == null){
+            synchronized (SpaceController.class){
+                if (instance == null){
+                    instance = new SpaceController();
+                }
+            }
+        }
+        return instance;    
+    }
+    
+    public static void setup(int x, int y, int z){
+        if(!setup){
+            xSize = x;
+            ySize = y;
+            zSize = z;
+            setup = true;
+        }
+    }
+    
     
     public static void addShip(Ship s) throws NullParamException{
         if (s == null){
@@ -29,9 +55,9 @@ public class SpaceController {
         }
         allShips.put(s.getIdentifier(), s);
     }
-    public static void removeShip(String ID){
+    public static void removeShip(String ID) throws NullParamException{
         if (ID == null){
-            //throw nullParamExceception
+            throw new NullParamException("removeShip must recieve a non null ID");
         }
         allShips.remove(ID);
     }
@@ -55,7 +81,9 @@ public class SpaceController {
         return new Point3D(xCoord, yCoord, zCoord);
     }
     
-    public static Point3D makePointNear(Point3D p, double per){
+    public static Point3D makePointNear(Point3D p, double per) throws NullParamException, InvalidParamException{
+        if (p == null) throw new NullParamException("MakePointNear must recieve a nonnull point");
+        if (per <= 0) throw new InvalidParamException("MakePointNear must recieve a positive percentage");
         int xVar = (int) (SpaceController.xSize * per); 
         int yVar = (int) (SpaceController.ySize * per); 
         int zVar = (int) (SpaceController.zSize * per); 
@@ -65,7 +93,11 @@ public class SpaceController {
         return new Point3D(xCoord, yCoord, zCoord);
     }
     
-    public static void processDetonation(String id, Point3D location, double detonationRange, double damageMax){
+    public static void processDetonation(String id, Point3D location, double detonationRange, double damageMax) throws NullParamException, InvalidParamException{
+        if (location == null) throw new NullParamException("ProcessDetonation must recieve a nonnull point");
+        if (id == null) throw new NullParamException("ProcessDetonation must recieve a nonnull id");
+        if (detonationRange <= 0) throw new InvalidParamException("ProcessDetonation must recieve a positive Detonation Range");
+        if (damageMax <= 0) throw new InvalidParamException("ProcessDetonation must recieve a positive Max Damage");
      Iterator it = allShips.entrySet().iterator();
      while(it.hasNext()){
          HashMap.Entry pair = (HashMap.Entry)it.next();
@@ -74,7 +106,7 @@ public class SpaceController {
          double d;
          d = location.distance(s.getLocation());
          if(d <= detonationRange){
-             if(id != s.getIdentifier()){
+             if(id.equals(s.getIdentifier())){
                  double damagePercent;
                  if(d > 0.0) damagePercent = (detonationRange-d)/detonationRange;
                  else damagePercent = 1.0;
@@ -86,9 +118,5 @@ public class SpaceController {
              }
          }
      }
-    }
-
-    public static Object getInstance() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

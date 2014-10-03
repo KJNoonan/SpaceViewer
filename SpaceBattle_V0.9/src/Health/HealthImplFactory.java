@@ -12,7 +12,7 @@ import Exceptions.InvalidParamException;
  * @author Kevin
  */
 public class HealthImplFactory {
-    public static HealthImpl createHealth(double strng, double mStrng)throws InvalidParamException{
-        return new HealthImpl(strng, mStrng);
+    public static HealthImpl createHealth(double mStrng)throws InvalidParamException{
+        return new HealthImpl(mStrng);
     }
 }

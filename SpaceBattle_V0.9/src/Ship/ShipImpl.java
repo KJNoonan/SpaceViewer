@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Ships;
+package Ship;
 
 import Exceptions.InvalidParamException;
 import Exceptions.NullParamException;
@@ -33,13 +33,14 @@ public abstract class ShipImpl implements Ship, Runnable{
     private Identifiable myIdentity;
     private Health myHealth;
     
-    public ShipImpl(Point3D loc, Point3D dest, double angle, double spd, double strng, double mStrng,String id, String clrStr) throws NullParamException, InvalidParamException{
-        myMovable = MovableImplFactory.createMovable(dest, angle, spd);
+    public ShipImpl(Point3D loc, Point3D dest, double spd,double mStrng,String id, String clrStr) throws NullParamException, InvalidParamException{
+        myMovable = MovableImplFactory.createMovable(dest, spd);
         myLocatable = LocatableImplFactory.createLocatable(loc);
         myIdentity = IdentifiableImplFactory.createIdentifiable(id, clrStr);
-        myHealth = HealthImplFactory.createHealth(strng, mStrng);                
+        myHealth = HealthImplFactory.createHealth(mStrng);                
         ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColor(), getAngle(), getShape(), InfoText(), isDestroyed(), isDamaged()));
-        new Thread(this).start();
+        Thread t1 = new Thread(this);
+        t1.start();
     }
     
     public boolean isDamaged(){
@@ -49,7 +50,7 @@ public abstract class ShipImpl implements Ship, Runnable{
     public boolean isDestroyed(){
         return getStrength() == 0.0;
     }
-    public String InfoText(){
+    public String getInfoText(){
         return "Color:\t\t\t"+getColor().toString()+"\n\n"
                 +"Location:\t\t"+getLocation().toString()+"\n"
                 +"Destination:\t\t"+getDestination().toString()+"\n"
@@ -144,12 +145,12 @@ public abstract class ShipImpl implements Ship, Runnable{
         try {
             move(1);
              ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColor(), getAngle(), getShape(), InfoText(), isDestroyed(), isDamaged()));
-             
-        } catch (NullParamException ex) {
+             Thread.sleep(50);
+        } catch (NullParamException | InvalidParamException ex) {
             Logger.getLogger(ShipImpl.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidParamException ex) {
-            Logger.getLogger(ShipImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }   catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
         }
         
         

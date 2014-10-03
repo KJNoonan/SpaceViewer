@@ -15,10 +15,8 @@ public class HealthImpl implements Health{
     private double strength;
     private double maxStrength;
     
-    public HealthImpl(double strng, double mStrng)throws InvalidParamException{
-        setMaxStrength(mStrng);
-        setStrength(strng);
-        
+    public HealthImpl(double mStrng)throws InvalidParamException{
+        setMaxStrength(mStrng);        
     }
 
     @Override

@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Ships;
+package Units;
 
 import Exceptions.InvalidParamException;
 import Exceptions.NullParamException;
+import Ship.ShipImpl;
 import Units.DebrisCloud;
 import Units.SpaceController;
 import display.ConsoleItemImpl;
@@ -27,8 +28,8 @@ public class CargoShip extends ShipImpl{
     private int debrisClouds;
     private PolygonPlus shape;
     
-    public CargoShip(Point3D loc, Point3D dest, double angle, double spd, double strng, double mStrng,String id, String clrStr, int dbrsclds)throws NullParamException, InvalidParamException{
-        super(loc, dest, angle, spd, strng, mStrng, id, clrStr);
+    public CargoShip(String id, String clrStr, Point3D loc, Point3D dest, double mStrng, double spd, int dbrsclds)throws NullParamException, InvalidParamException{
+        super(loc, dest, spd, mStrng, id, clrStr);
         debrisClouds = dbrsclds;
         setShape();
         SpaceController.addShip(this);
@@ -44,7 +45,7 @@ public class CargoShip extends ShipImpl{
         if(distToDest != 0.0){
             if(distToDest < distTraveled){
                 setLocation(dest);
-                setDestination(SpaceController.makePoint());
+                setDestination(SpaceController.getInstance().makePoint());
             }else{
                 double delta = distTraveled/distToDest;
                 double newXCoord = locOld.getX()+((dest.getX()-locOld.getX())*delta);
@@ -65,7 +66,7 @@ public class CargoShip extends ShipImpl{
         setStrength(getMaxStrength());
     }
     
-    public void reactToRadarLock(Point3D closePT) throws NullParamException{
+    public void reactToRadarLock(Point3D closePT) throws NullParamException, InvalidParamException{
     if(debrisClouds == 0)return;
     setDestination(SpaceController.makePoint());
     SoundUtility.getInstance().playSound("sounds"+File.separator+"Cloud.wav");

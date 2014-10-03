@@ -20,9 +20,8 @@ public class MovableImpl implements Movable {
     private double angle;
     private double speed;
         
-    public MovableImpl(Point3D dest, double angle, double spd)throws InvalidParamException, NullParamException {
+    public MovableImpl(Point3D dest, double spd)throws InvalidParamException, NullParamException {
     setDestination(dest);
-    setAngle(angle);
     setSpeed(spd);
     }
 
