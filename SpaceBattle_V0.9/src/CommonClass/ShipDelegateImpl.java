@@ -8,9 +8,12 @@ package CommonClass;
 
 import classes.DebrisCloud;
 import classes.SpaceController;
+import display.ConsoleItemImpl;
 import display.ViewManager;
 import java.awt.Color;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import utils.ColorMaker;
 import utils.Point3D;
 import utils.PolygonPlus;
@@ -20,23 +23,43 @@ import utils.SoundUtility;
  *
  * @author Kevin
  */
-public class ShipDelegateImpl implements ShipDelegate{
+public class ShipDelegateImpl implements ShipDelegate, Runnable{
 
     private Health myHealth;
     private Identifiable myIdentity;
     private Locatable myLocation;
     private Movable myMovable;
     private double angle;
+    private PolygonPlus shape;
+    private String colorName;
+    
 
     public ShipDelegateImpl(String id, String clrStr, Point3D loc, Point3D dest, double mStrng, double spd) {
         myHealth = HealthImplFactory.createHealth(mStrng);
         myIdentity = IdentifiableImplFactory.createIdentifiable(id, clrStr);
+        colorName = clrStr;
         myLocation = LocatableImplFactory.createLocatable(loc);
         myMovable = MovableImplFactory.createMovable(dest, spd);
         resetStrength();
     }
     
     
+    @Override
+    public void run() {
+        while (destroyed()) {
+            move(1);
+            ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColor(), getAngle(), getShape(), getInfoText(), destroyed(), damaged()));
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ShipDelegateImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public void move(int cycles){
+        return;
+    }
     
     @Override
     public void resetStrength(){ myHealth.setStrength(myHealth.getMaxStrength());}
@@ -70,11 +93,10 @@ public class ShipDelegateImpl implements ShipDelegate{
             SpaceController.removeShip(id);
             ViewManager.getInstance().removeItem(id);
             SpaceController.processDetonation(id, getLocation(), strng, dmg);
-            SpaceController.addCloud(new DebrisCloud("Ship Debris from "+id,getLocation(), getColor() ,4000,false,1.5));
+            SpaceController.addDebrisCloud(new DebrisCloud("Ship Debris from "+id,getLocation(), colorName ,4000,false,1.5));
             SoundUtility.getInstance().playSound("sounds" + File.separator + "Blast.wav");
         }
     }
-    
     //Accessors
     @Override
     public double getStrength(){return myHealth.getStrength();}
@@ -122,13 +144,29 @@ public class ShipDelegateImpl implements ShipDelegate{
     @Override
     public void setSpeed(double spd){myMovable.setSpeed(spd);}
     
-    public void setAngle(double ang){angle = ang;}
-
     
 
+    @Override
+    public void setColor(Color color) { myIdentity.setColor(color);}
+
+    @Override
+    public void setShape() {shape = new PolygonPlus();}
+
+    @Override
+    public PolygonPlus getShape() {return shape;}
+
+    @Override
+    public void setAngle(double d) {
+        angle = d;
+    }
     
 
-    
+
     
     
 }
+
+    
+    
+    
+

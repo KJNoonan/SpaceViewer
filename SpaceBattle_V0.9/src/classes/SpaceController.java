@@ -6,8 +6,6 @@
 package classes;
 
 import CommonClass.ShipDelegate;
-import Exceptions.InvalidParamException;
-import Exceptions.NullParamException;
 import java.util.HashMap;
 import java.util.Iterator;
 import utils.Point3D;
@@ -20,34 +18,20 @@ public class SpaceController {
     public static int xSize = 800;
     public static int ySize = 900;
     public static int zSize = 700;
-    private volatile static SpaceController instance;
     private static HashMap<String,ShipDelegate> allShips = new HashMap<String, ShipDelegate>();
     private static HashMap<String,DebrisCloud> allClouds = new HashMap<String, DebrisCloud>();;
-    
-    public static SpaceController getInstance(){
-        if(instance == null){
-            synchronized (SpaceController.class){
-                if (instance == null){
-                    instance = new SpaceController();
-                }
-            }
-        }
-        return instance;    
-    }
-    
-    
+     
     public static void addShip(ShipDelegate s){
         allShips.put(s.getIdentifier(), s);
     }
     public static void removeShip(String ID){
         allShips.remove(ID);
-        
     }
     
-    public static void addCloud(DebrisCloud d){
+    public static void addDebrisCloud(DebrisCloud d){
         allClouds.put(d.getIdentifier(), d);
     }
-    public static void removeCloud(String ID) throws NullParamException{
+    public static void removeCloud(String ID){
        allClouds.remove(ID);
     }
     public static Point3D makePoint(){

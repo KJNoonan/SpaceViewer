@@ -18,6 +18,9 @@ public interface ShipDelegate extends Health, Movable, Identifiable, Locatable{
     boolean destroyed();
     String getInfoText();
     void applyDamage(double dmg);
-    
+    void setShape();
+    PolygonPlus getShape();
+    void setAngle(double d);
+    double getAngle();
     
 }

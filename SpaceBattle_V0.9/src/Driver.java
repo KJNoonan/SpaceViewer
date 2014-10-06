@@ -1,4 +1,4 @@
-import Units.CargoShip;
+import classes.CargoShip;
 import classes.SpaceController;
 import display.ViewManager;
 import java.util.ArrayList;

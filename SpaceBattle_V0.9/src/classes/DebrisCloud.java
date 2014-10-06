@@ -5,6 +5,8 @@
  */
 package classes;
 
+import CommonClass.Identifiable;
+import CommonClass.Locatable;
 import Exceptions.NullParamException;
 import display.ConsoleItemImpl;
 import display.ViewManager;
@@ -22,42 +24,31 @@ import utils.PolygonPlus;
  * @author Kevin
  */
 public class DebrisCloud implements Runnable{
-    private String identifier;
-    private Point3D location;
-    private PolygonPlus shape;
+    
+    private Identifiable myIdentity;
+    private Locatable myLocation;
     private int duration;
-    private Color colour;
-    private boolean radarVisable;
+    private boolean visible;
+    private PolygonPlus shape;
+    
     
     public DebrisCloud(String ID, Point3D location, String cName, int duration, boolean visibility, double size_factor) {
-        
-        setIdentifier(ID);
-        setLocation(location);
-        try {
-            setColour(cName);
-        } catch (NullParamException ex) {
-            Logger.getLogger(DebrisCloud.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        myIdentity.setColor(cName);
+        myIdentity.setIdentifier(ID);
+        myLocation.setLocation(location);
         setDuration(duration);
-        setRadarVisable(visibility);
+        setVisible(visibility);
         makeShape();
         shape.scale(size_factor);
-        ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColour(), Math.toRadians(Math.random()*360.0), shape, getInfoText(), false, false));
-        
-        if(radarVisable) try {
-            SpaceController.getInstance().addCloud(this);
-        } catch (NullParamException ex) {
-            Logger.getLogger(DebrisCloud.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       
-        Thread t1 = new Thread(this);
-        t1.start();
+        ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(),getLocation(),getColor(),Math.toRadians(Math.random() * 360.0), shape, getInfoText(), false, false));
+        SpaceController.addDebrisCloud(this);
+        new Thread(this).start();
     }
-    
+   
     public String getInfoText(){
-        return "Location:\t\t"+location+
+        return "Location:\t\t"+getLocation()+
                 "\nDuration:\t\t"+duration+
-                "\nRadar Visable:\t"+radarVisable;
+                "\nRadar Visable:\t"+visible;
     }
     
     public void makeShape(){
@@ -93,70 +84,50 @@ public class DebrisCloud implements Runnable{
  }
     }
     
-    
-    //Modifiers
-    private void setIdentifier(String ID){
-        identifier = ID;
-    }
-    
-    private void setLocation(Point3D pt){
-        location = pt;
-    }
-    private void setDuration(int dur){
-        duration = dur;
-    }
-    private void setColour(String clr)throws NullParamException{
-       if (clr == null) {
-            throw new NullParamException("Color is pointing "
-                    + "to a null Color Object");
-        }
-        colour = Color.getColor(clr);
-    }
-    private void setRadarVisable(boolean visable){
-        radarVisable = visable;
-    }
-    
-    
-    //Accessor Methods
-     public String getIdentifier(){
-        return identifier;
-    }
-    
-    public Point3D getLocation(){
-        return location;
-    }
-    public int getDuration(){
-        return duration;
-    }
-    public Color getColour(){
-        return colour;
-    }
-    public boolean getRadarVisable(){
-        return radarVisable;
-    }
-
     @Override
     public void run(){
         if(duration <= 0){
-            ViewManager.getInstance().removeItem(identifier);
-            if(!radarVisable)try {
-                SpaceController.removeCloud(identifier);
-            } catch (NullParamException ex) {
-                Logger.getLogger(DebrisCloud.class.getName()).log(Level.SEVERE, null, ex);
-            }            
+            ViewManager.getInstance().removeItem(getIdentifier());
+            if(!visible)
+                SpaceController.removeCloud(getIdentifier());          
         }
         else{
             
             try {
-                ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColour(), Math.toRadians(Math.random()*360.0), shape, getInfoText(), false, false));
+                ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColor(), Math.toRadians(Math.random()*360.0), shape, getInfoText(), false, false));
                 Thread.sleep(50);
                 duration -= 50;
                 run();
             } catch (InterruptedException ex) {
-                ex.printStackTrace();;
+                ex.printStackTrace();//
             }
             
         }
+    }
+    public void setIdentifier(String id){
+        myIdentity.setIdentifier(id);
+    }
+    
+    public String getIdentifier(){return myIdentity.getIdentifier();}
+    
+    public void setLocation(Point3D loc){myLocation.setLocation(loc);}
+    
+    public Point3D getLocation(){return myLocation.getLocation();}
+    
+    public void setColor(String clr){myIdentity.setColor(clr);}
+    
+    public Color getColor(){return myIdentity.getColor();}
+    
+    public int getDuration(){return duration;}
+
+    private void setDuration(int d) {
+        duration = d;
+    }
+
+    public boolean getVisible(){return visible;}
+    
+    private void setVisible(boolean visibility) {
+    visible = visibility;
     }
     
 }
