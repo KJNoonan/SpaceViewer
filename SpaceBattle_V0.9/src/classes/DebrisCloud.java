@@ -5,8 +5,6 @@
  */
 package classes;
 
-import CommonClass.Identifiable;
-import CommonClass.Locatable;
 import Exceptions.NullParamException;
 import display.ConsoleItemImpl;
 import display.ViewManager;
@@ -23,7 +21,7 @@ import utils.PolygonPlus;
  *
  * @author Kevin
  */
-public class DebrisCloud implements Runnable{
+public class DebrisCloud implements Cloud, Runnable{
     
     private Identifiable myIdentity;
     private Locatable myLocation;
@@ -33,16 +31,16 @@ public class DebrisCloud implements Runnable{
     
     
     public DebrisCloud(String ID, Point3D location, String cName, int duration, boolean visibility, double size_factor) {
-        myIdentity.setColor(cName);
-        myIdentity.setIdentifier(ID);
-        myLocation.setLocation(location);
+        myIdentity = IdentifiableImplFactory.createIdentifiable(ID, cName);
+        myLocation = LocatableImplFactory.createLocatable(location);
         setDuration(duration);
         setVisible(visibility);
         makeShape();
         shape.scale(size_factor);
         ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(),getLocation(),getColor(),Math.toRadians(Math.random() * 360.0), shape, getInfoText(), false, false));
         SpaceController.addDebrisCloud(this);
-        new Thread(this).start();
+        Thread t1 = new Thread(this);
+        t1.start();
     }
    
     public String getInfoText(){
@@ -120,14 +118,19 @@ public class DebrisCloud implements Runnable{
     
     public int getDuration(){return duration;}
 
-    private void setDuration(int d) {
+    public void setDuration(int d) {
         duration = d;
     }
 
     public boolean getVisible(){return visible;}
     
-    private void setVisible(boolean visibility) {
+    public void setVisible(boolean visibility) {
     visible = visibility;
+    }
+
+    @Override
+    public void setColor(Color color) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

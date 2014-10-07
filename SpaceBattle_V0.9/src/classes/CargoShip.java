@@ -5,9 +5,6 @@
  */
 package classes;
 
-import CommonClass.ShipDelegate;
-import CommonClass.ShipDelegateImpl;
-import CommonClass.ShipDelegateImplFactory;
 import display.ConsoleItemImpl;
 import display.ViewManager;
 import java.awt.Color;
@@ -25,11 +22,11 @@ import utils.SoundUtility;
  *
  * @author Kevin
  */
-public class CargoShip extends ShipDelegateImpl{
-    private ShipDelegate myShip;
+public class CargoShip extends ShipDelegateImpl implements Runnable{
     private int dclouds;
     private PolygonPlus shape;
     private double angle;
+    private Thread t1;
     
     public CargoShip(String id, String clrStr, Point3D loc, Point3D dest, double mStrng, double spd, int dclds){
         super(id,clrStr,loc,dest,mStrng,spd);
@@ -38,7 +35,21 @@ public class CargoShip extends ShipDelegateImpl{
         
         SpaceController.addShip(this);
         ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColor(), getAngle(), getShape(), getInfoText(), destroyed(), damaged()));
-        new Thread(this).start();
+        t1 = new Thread(this);
+        t1.start();
+    }
+    
+    @Override
+    public void run() {
+        while (!destroyed()) {
+            move(1);
+            ViewManager.getInstance().updateItem(new ConsoleItemImpl(getIdentifier(), getLocation(), getColor(), getAngle(), getShape(), getInfoText(), destroyed(), damaged()));
+            try {
+                t1.sleep(50);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ShipDelegateImpl.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     private void setDebrisClouds(int dclds) {dclouds = dclds;}
@@ -63,7 +74,6 @@ public class CargoShip extends ShipDelegateImpl{
     public PolygonPlus getShape() {return shape;}
     
     
-    @Override
     public void move(int cycle) {
         Point3D locOld = getLocation();
         double distTraveled = getSpeed() * cycle;
@@ -80,7 +90,7 @@ public class CargoShip extends ShipDelegateImpl{
             double ZCoord = locOld.getZ()+(dest.getZ()-locOld.getZ())*delta;
             
             Point3D newpt = new Point3D(XCoord, YCoord, ZCoord);
-            
+            setLocation(newpt);
             double nx = XCoord - locOld.getX();
             double ny = YCoord - locOld.getY();
             setAngle(Math.atan2(ny, nx) + (Math.PI / 2.0));
@@ -88,11 +98,25 @@ public class CargoShip extends ShipDelegateImpl{
     }
 
     
-    @Override
+    
     public void setAngle(double d) {
-        myShip.setAngle(d);
+        angle = d;
     }
     
+    public String getInfoText(){
+        return "Color:\t\t\t"+ColorMaker.getColorName(getColor())
+                +"\nLocation:\t\t"+getLocation()
+                +"\nDestination:\t\t"+getDestination()
+                +"\nSpeed:\t\t\t"+getSpeed()
+                +"\nAngle:\t\t\t"+getAngle()
+                +"\n\nStrength:\t\t"+getStrength()
+                +"\nMax Strength:\t\t"+getMaxStrength()
+                +"\nDamaged:\t\t"+damaged();
+    }
+    
+    public double getAngle(){
+        return angle;
+    }
     public void reactToRadarLock(Point3D location) {
         if (dclouds < 0){
             return;

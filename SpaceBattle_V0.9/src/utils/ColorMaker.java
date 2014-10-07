@@ -30,6 +30,14 @@ public class ColorMaker {
         colors.put("TAN", new Color(210, 180, 140));
     }
     
+    public static String getColorName(Color c) {
+   for (String name : colors.keySet()) {
+      if (colors.get(name).equals(c))
+         return name;
+     }
+     return "UNKNOWN";
+}
+    
     public static Color makeColor(String name) {
         if (colors.containsKey(name))
             return colors.get(name);
